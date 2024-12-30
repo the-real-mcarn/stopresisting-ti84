@@ -7,17 +7,25 @@
  *--------------------------------------
 */
 #include <cstdint>
+#include <cstdio>
 #include <ti/screen.h>
 #include <ti/getcsc.h>
 #include <graphx.h>
-#include <time.h>
+#include <sys/rtc.h>
+#include "srti84.hpp"
 
 #include "stopresisting/StopResisting.hpp"
 #include "helpers/helpers.h"
 
-StopResisting res(time(nullptr));
+StopResisting res(rtc_Time());
+SRTi84 ui;
 int8_t inputs[4] = {0};
-uint8_t inputIndex = 0;
+int8_t inputIndex = 0;
+
+// Restart flag
+bool restart = false; // Restart flag set by input validator
+uint16_t restartCount = 0; // Timer
+#define RESTART_DELAY 1000 // Time to runout
 
 /**
  * Redraw everything
@@ -30,29 +38,32 @@ void redraw();
  */
 void input(int8_t value);
 
-uint8_t bgMap[8] = {
-    0b00001000,
-    0b00000100,
-    0b00000010,
-    0b00000001,
-    0b00010000,
-    0b00100000,
-    0b01000000,
-    0b10000000
-};
-
 /* Main function, called first */
 int main(void)
 {
+    // Setup gfx and set palette
     gfx_Begin();
-    gfx_ZeroScreen();
+    gfx_SetPalette(global_palette, sizeof_global_palette, 0);
+
+    if (!ui.init())
+        return 0;
 
     redraw();
 
     const uint8_t keys[10] = {sk_0, sk_1, sk_2, sk_3, sk_4, sk_5, sk_6, sk_7, sk_8, sk_9};
-    bool stop = false;
+    bool stop = false; // Quit loop
+
     while (!stop) {
-        const uint8_t key = get_single_key_pressed();
+        if (restart) {
+            if (restartCount++ > RESTART_DELAY) {
+                restart = false;
+                restartCount = 0;
+                redraw();
+            }
+        }
+
+        // Progress keypresses
+        const uint8_t key = getSingleKeyPress();
         switch(key) {
             case sk_Graph:
                 // Exit program
@@ -60,22 +71,24 @@ int main(void)
                 break;
             case sk_Trace:
                 // New resistor and redraw
+                ui.score = 0;
                 redraw();
                 break;
             case sk_Del:
                 // Delete one input
                 inputIndex--;
+                ui.drawInputBox(inputs, inputIndex);
                 break;
             case sk_Clear:
                 // Delete all input
-                inputIndex = 0;
+                inputIndex = -1;
+                ui.drawInputBox(inputs, inputIndex);
                 break;
 
             default:
                 // Try to interpret number keys and ignore the rest without making 700 switchcases
                 const int8_t val = indexOf(key, keys, sizeof(keys));
                 if (val >= 0) {
-                    gfx_PrintInt(val, 2);
                     input(val);
                 }
                 break;
@@ -87,32 +100,44 @@ int main(void)
 }
 
 void redraw() {
-    inputIndex = 0;
+    inputIndex = -1;
     res.newResistor();
 
     int8_t colors[4] = {0};
     uint8_t bands = res.getColors(colors);
 
-    gfx_FillScreen(0x5a);
-
-    // Center line
-    gfx_SetColor(0xe0);
-    gfx_Line(GFX_LCD_WIDTH/2,0,GFX_LCD_WIDTH/2,GFX_LCD_HEIGHT);
-
-    drawResistor(20, colors, bands);
+    ui.drawResistor(50, colors, bands);
+    ui.drawUi();
+    ui.drawInputBox(inputs, inputIndex);
 }
 
 void input(int8_t value) {
+    // -1 prevents any number from being printed but it also breaks the array index
+    // Skip to index 0 when first input is given
+    if (inputIndex < 0)
+        inputIndex++;
+
     inputs[inputIndex] = value;
 
     if (inputIndex == 3) {
         const uint8_t result = res.guess(inputs);
+        ui.drawInputBox(inputs, inputIndex, result);
+
         if (result == 15) {
-            gfx_FillScreen(0x07);
+            // Answer correct
+            ui.score++;
+            if (ui.score>ui.highscore)
+                ui.highscore = ui.score;
+
+            // gfx_FillScreen(0x07);
         } else {
-            gfx_FillScreen(0xE0);
+            // Answer incorrect
+            ui.score = 0;
+            // gfx_FillScreen(0xE0);
         }
+        restart = true;
     } else {
+        ui.drawInputBox(inputs, inputIndex);
         inputIndex++;
     }
 }

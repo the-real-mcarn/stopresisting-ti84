@@ -1,0 +1,39 @@
+palettes:
+  - name: global_palette
+    fixed-entries:
+#     UI Colors
+      - color: {index: 0x00, r: 0, g: 0, b: 0} # Black
+      - color: {index: 0x01, r: 0, g: 255, b: 0} # Transparent color
+      - color: {index: 0x4a, r: 81, g: 85, b: 81} # Gray statusbar
+      - color: {index: 0xff, r: 255, g: 255, b: 255} # White
+#     Resistor colors
+      - color: {index: 0x5f, r: 90, g: 235, b: 255} # Resistor body blue
+#      - color: {index: 0x00, r: , g: , b: } # Black already defined
+      - color: {index: 0x41, r: 66, g: 40, b: 8} # Brown
+      - color: {index: 0xe0, r: 231, g: 28, b: 0} # Red
+      - color: {index: 0xe2, r: 231, g: 93, b: 16} # Orange
+      - color: {index: 0xe7, r: 255, g: 216, b: 0} # Yellow
+      - color: {index: 0x07, r: 0, g: 227, b: 57} # Green
+      - color: {index: 0x19, r: 24, g: 32, b: 206} # Blue
+      - color: {index: 0x90, r: 123, g: 12, b: 98} # Violet
+#      - color: {index: 0x4a, r: , g: , b: } # Grey already defined
+#      - color: {index: 0xff, r: , g: , b: } # White already defined
+      - color: {index: 0x83, r: 153, g: 101, b: 21} # Gold
+      - color: {index: 0x73, r: 131, g: 137, b: 150} # Silver
+      - color: {index: 0xf0, r: 247, g: 28, b: 132} # Pink
+    images: automatic
+
+converts:
+  - name: sprites
+    palette: global_palette
+    transparent-color-index: 1
+    images:
+      - headericon.png
+
+outputs:
+  - type: c
+    include-file: gfx.h
+    palettes:
+      - global_palette
+    converts:
+      - sprites

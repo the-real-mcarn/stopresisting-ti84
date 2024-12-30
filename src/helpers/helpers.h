@@ -6,9 +6,7 @@
 #define HELPERS_H
 
 #include <cstdint>
-#include "stopresisting/StopResisting.hpp"
 #include "keypadc.h"
-#include "graphx.h"
 
 /**
  * Find element in array because this toolchain lacks half of cpp
@@ -23,14 +21,6 @@ int8_t indexOf(uint8_t elm, const uint8_t *ar, int ar_cnt);
  * Library function to get keys
  * @return sk_key value
  */
-uint8_t get_single_key_pressed();
-
-/**
- * Draw big resistor.png
- * @param y Y offset
- * @param colors Color values from StopResisting
- * @param bands Amount of bands
- */
-void drawResistor(int16_t y, const int8_t *colors, uint8_t bands );
+uint8_t getSingleKeyPress();
 
 #endif //HELPERS_H

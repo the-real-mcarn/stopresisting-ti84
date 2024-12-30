@@ -3,7 +3,7 @@
 # ----------------------------
 
 NAME = STOPRES
-ICON = icon.png
+ICON = src/gfx/icon.png
 DESCRIPTION = "Resistor Learning game"
 COMPRESSED = YES
 ARCHIVED = NO
