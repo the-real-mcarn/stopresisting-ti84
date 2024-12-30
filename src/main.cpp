@@ -19,13 +19,16 @@
 
 StopResisting res(rtc_Time());
 SRTi84 ui;
-int8_t inputs[4] = {0};
+
+// Input globals
+int8_t colors[4] = {0}; // Actual colors
+int8_t inputs[4] = {0}; // User guess
 int8_t inputIndex = 0;
 
 // Restart flag
 bool restart = false; // Restart flag set by input validator
 uint16_t restartCount = 0; // Timer
-#define RESTART_DELAY 1000 // Time to runout
+#define RESTART_DELAY 1200 // Time to runout
 
 /**
  * Redraw everything
@@ -45,11 +48,18 @@ int main(void)
     gfx_Begin();
     gfx_SetPalette(global_palette, sizeof_global_palette, 0);
 
-    if (!ui.init())
+    // Load fonts, stop if failed
+    if (!ui.init()) {
+        while (!getSingleKeyPress()) {
+        }
+        gfx_End();
         return 0;
+    }
 
+    // Draw first
     redraw();
 
+    // Key handling
     const uint8_t keys[10] = {sk_0, sk_1, sk_2, sk_3, sk_4, sk_5, sk_6, sk_7, sk_8, sk_9};
     bool stop = false; // Quit loop
 
@@ -84,7 +94,9 @@ int main(void)
                 inputIndex = -1;
                 ui.drawInputBox(inputs, inputIndex);
                 break;
-
+            case sk_Enter:
+                // Skip delay
+                restartCount = RESTART_DELAY;
             default:
                 // Try to interpret number keys and ignore the rest without making 700 switchcases
                 const int8_t val = indexOf(key, keys, sizeof(keys));
@@ -100,11 +112,11 @@ int main(void)
 }
 
 void redraw() {
+    gfx_FillScreen(0xff);
+
     inputIndex = -1;
     res.newResistor();
-
-    int8_t colors[4] = {0};
-    uint8_t bands = res.getColors(colors);
+    const uint8_t bands = res.getColors(colors);
 
     ui.drawResistor(50, colors, bands);
     ui.drawUi();
@@ -121,7 +133,11 @@ void input(int8_t value) {
 
     if (inputIndex == 3) {
         const uint8_t result = res.guess(inputs);
-        ui.drawInputBox(inputs, inputIndex, result);
+        ui.drawInputBox(colors, inputIndex, result);
+
+        char valStr[16] = {0};
+        res.getValueStr(valStr);
+        ui.drawResult(valStr, result);
 
         if (result == 15) {
             // Answer correct

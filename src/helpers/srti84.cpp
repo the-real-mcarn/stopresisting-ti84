@@ -93,6 +93,7 @@ void SRTi84::drawInputBox(int8_t *input, int8_t index, uint8_t validate) {
     constexpr uint8_t mx = 16;
     constexpr uint8_t a = 4; // Amount
 
+    // Draw new inputs
     for (int i = 0; i < a; ++i) {
         uint8_t dw = (a * w) + ((a - 1) * mx);
         bool valid = validate >> ((a - 1) - i) & 1;
@@ -101,15 +102,16 @@ void SRTi84::drawInputBox(int8_t *input, int8_t index, uint8_t validate) {
 
         if (validate != 0xff) {
             gfx_SetColor((valid) ? 0x07 : 0xe0);
+            fontlib_SetColors((valid) ? 0x00 : 0xe0, 0xff);
         } else {
             gfx_SetColor(0x00);
+            fontlib_SetColors(0x00, 0xff);
         }
 
         gfx_Rectangle(dx, y, w, h);
         gfx_Rectangle(dx+1, y+1, w-2, h-2);
 
         fontlib_SetFont(this->OSFontL, FONTLIB_IGNORE_LINE_SPACING);
-        fontlib_SetColors(0x00, 0xff);
         fontlib_SetCursorPosition(dx + (w/2) - (10 / 2), y + (h/2) - (14/2)); // Fontheight
         if (index != -1 && i <= index) {
             fontlib_DrawInt(input[i], 1);
@@ -119,7 +121,23 @@ void SRTi84::drawInputBox(int8_t *input, int8_t index, uint8_t validate) {
     }
 }
 
-void SRTi84::drawResult()
+void SRTi84::drawResult(char *value, uint8_t validate) {
+    constexpr uint8_t y = (GFX_LCD_HEIGHT / 2) + 6;
+    const uint8_t w = fontlib_GetStringWidth(value);
+    uint8_t x = (GFX_LCD_WIDTH / 2) - (w / 2) + (24 / 2);
+
+    fontlib_SetFont(this->OSFontL, FONTLIB_IGNORE_LINE_SPACING);
+    fontlib_SetColors(0x00, 0xff);
+    fontlib_SetCursorPosition(x, y);
+    fontlib_DrawString(value);
+
+    gfx_SetTransparentColor(0x01);
+    if (validate == 15) {
+        gfx_TransparentSprite_NoClip(ok, x - 24, y - 2);
+    } else {
+        gfx_TransparentSprite_NoClip(nok, x - 24, y - 2);
+    }
+}
 
 /**
  * Draw the resistor window

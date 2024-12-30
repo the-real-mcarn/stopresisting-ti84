@@ -53,6 +53,7 @@ class SRTi84 {
          */
         void drawInputBox(int8_t *input, int8_t index, uint8_t validate = 0xff);
 
+        void drawResult(char *value, uint8_t validate);
 
         /**
          * Draw big resistor.png

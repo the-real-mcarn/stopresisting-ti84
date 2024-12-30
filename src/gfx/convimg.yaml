@@ -29,6 +29,8 @@ converts:
     transparent-color-index: 1
     images:
       - headericon.png
+      - nok.png
+      - ok.png
 
 outputs:
   - type: c
