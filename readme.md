@@ -1,11 +1,14 @@
-### CE C/C++ Toolchain Template
+# Stop Resisting! TI-84 CE Edition
+Stop Resisting! You __can__ learn resistor color codes!
 
-This is a template for programs that use the [TI-84 Plus CE C/C++ Toolchain](https://github.com/CE-Programming/toolchain).
-You can clone this directory for your own projects.
-Note that for graphical programs, it is recommended to start from the [graphx template](https://github.com/CE-Programming/graphx-template) instead of this one.
+![Screenshot](screencap.png)
 
-To add code, fill in the `int main(void)` function in main.c. You can also create
-your own source and header files and add them to the directory; the makefile
-will automatically find and compile the new source files.
+This is a TI-84 version for my [stopresisting](https://github.com/the-real-mcarn/stopresisting) project to teach myself to read resistors. 
+I made it on the TI-84 because the C-Toolchain is great and the TI-84 CE is an easy target with everything I needed (buttons, screen, battery, etc.)
 
-For more information, see the [toolchain's documentation](https://ce-programming.github.io/toolchain/index.html).
+Right now it is hardcoded to ask for resistors in the E96 range but if I feel like it I will include more menus to change that around.
+The program intentionally mimicks the look of official TI-84 programs like probability simulator. 
+
+## Links
+- [TI-84 CE OS Fonts on Cemetech](https://www.cemetech.net/downloads/files/2143/x2531)
+- [Ti-84 CE C/C++ Toolchain](https://ce-programming.github.io/toolchain/)
